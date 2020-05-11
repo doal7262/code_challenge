@@ -45,6 +45,7 @@ while(eqStack):
     if eqAns == 'error':
         print('equation name encountered')
         break
+        
     else:
         ans.append(eqStack[0] + ' = ' + str(eqAns))
 

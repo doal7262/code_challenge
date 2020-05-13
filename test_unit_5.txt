@@ -1,0 +1,4 @@
+time = 4 + place + 1 
+place = 1 + variations + origin
+origin = 3         + 5
+variations = 2

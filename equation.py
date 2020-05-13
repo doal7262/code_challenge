@@ -1,15 +1,26 @@
+import sys, getopt
+
 # Stores the solved equations
 sovled_eq_dict = {}
 # Store the input equations
 unsovled_eq_dict = {}
 
+# Custom test cases are read here
+options, remainder = getopt.getopt(sys.argv[1:], 'i', ['ifile='])
+if options:
+    try:
+        with open(options[0][1]) as input_file:
+            test_equations = input_file.read().splitlines()
+    except Exception as error:
+        print('filename not recognized')
 
-test_equations = [
-    'offset = 4 + random + 1', 
-    'location = 1 + origin + offset', 
-    'origin = 3         + 5', 
-    'random = 2',
-]
+else:
+    test_equations = [
+        'offset = 4 + random + 1', 
+        'location = 1 + origin + offset', 
+        'origin = 3         + 5', 
+        'random = 2',
+    ]
 
 
 def decypher_equation_string():
@@ -30,8 +41,6 @@ def solve_for_variable(variable):
     for value in variable_eq:
         if value == variable:
             raise Exception("infinite loop %s = %s" % (value, variable))
-        elif variable not in unsovled_eq_dict:
-            raise Exception("variable %s not found" % (variable))
 
         if not value.isalpha():
             result += int(value)

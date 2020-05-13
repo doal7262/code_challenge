@@ -1,54 +1,65 @@
-
-def alphaDepth(LHS, RHS, result):
-    for n in range(len(RHS)):
-        if RHS[n].isalpha():
-            if RHS[n] == LHS:
-                print('infinite loop')
-                return 'error'
-
-            elif LHS not in eqDict:
-                print('Variable not found')
-                return 'error'
-
-            elif RHS[n] in pruner:
-                result += pruner[RHS[n]]
-
-            else:
-                result += alphaDepth(RHS[n], eqDict[RHS[n]], 0)
-
-        else:
-            result += int(RHS[n])
-
-    pruner[LHS] = result
-    return result
-
-testEq = ['offset = 4 + random + 1', 'location = 1 + origin + offset', 
-          'origin = 3         + 5', 'random = 2']
-
-eqDict = {}
-
-# Breaking down the strings into something machine readable
-for n in range(len(testEq)):
-    # eqDict[LHS] = RHS
-    LHS = testEq[n].split(' =')[0]
-    RHS = testEq[n].split(' =')[1]
-    RHS = RHS.replace('+', ' ')
-    RHS = RHS.split()
-    eqDict[LHS] = RHS
+# Stores the solved equations
+sovled_eq_dict = {}
+# Store the input equations
+unsovled_eq_dict = {}
 
 
-# Depth First Search Approach
-eqStack, ans, pruner = sorted(list(eqDict.keys())), [], {}
+test_equations = [
+    'offset = 4 + random + 1', 
+    'location = 1 + origin + offset', 
+    'origin = 3         + 5', 
+    'random = 2',
+]
 
-while(eqStack):
-    eqAns = alphaDepth(eqStack[0], eqDict[eqStack[0]], 0)
-    if eqAns == 'error':
-        print('equation name encountered')
-        break
+
+def decypher_equation_string():
+    unsolved_eq_dict = {}
+    for test_equation in test_equations:
+        formatted_equation = test_equation.replace(" ", "")
+        left_hand_side, right_hand_side = tuple(formatted_equation.split("="))
+        right_hand_side = right_hand_side.split("+")
+        unsolved_eq_dict[left_hand_side] = right_hand_side
+
+    return unsolved_eq_dict
+
+
+def solve_for_variable(variable):
+    variable_eq = unsovled_eq_dict[variable]
+    result = 0
+
+    for value in variable_eq:
+        if value == variable:
+            raise Exception("infinite loop %s = %s" % (value, variable))
+        elif variable not in unsovled_eq_dict:
+            raise Exception("variable %s not found" % (variable))
+
+        if not value.isalpha():
+            result += int(value)
+            continue
         
-    else:
-        ans.append(eqStack[0] + ' = ' + str(eqAns))
+        if value not in sovled_eq_dict:
+            solve_for_variable(value)
 
-    eqStack.pop(0)
+        result += sovled_eq_dict[value]
 
-print(ans)
+    sovled_eq_dict[variable] = result
+
+
+if __name__ == "__main__":
+    answers = []
+    unsovled_eq_dict = decypher_equation_string()
+    variables = sorted(list(unsovled_eq_dict.keys()))
+
+    # Depth First Search Approach
+    for variable in variables:
+        try:
+            solve_for_variable(variable)
+            answer_string = "%s = %s\n" % (variable, sovled_eq_dict[variable])
+            answers.append(answer_string)
+        except Exception as error:
+            print(error)
+            break
+
+    answer_file = open('answers.txt', 'w')
+    answer_file.writelines(answers)
+    answer_file.close()
